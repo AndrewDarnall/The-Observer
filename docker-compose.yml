@@ -1,0 +1,24 @@
+# Docker Compose file for the project
+# Warning, the project is meant to be run in the cloud or with powerful hardware
+version: '3.3'
+services:
+  stream_connector:
+    image: tap_project:stream_connector_2
+    container_name: streamConnector
+    networks:
+      - tap_project
+    volumes:
+      - datastorage:/app/datastorage
+  data_ingestor:
+    image: tap_project:data_ingestor
+    container_name: dataIngestor
+    networks:
+      - tap_project
+    volumes:
+      - datastorage:/datastorage
+  
+networks:
+  tap_project:
+
+volumes:
+  datastorage:
