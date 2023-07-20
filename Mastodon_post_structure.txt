@@ -1,0 +1,37 @@
+As you all know, modern APIs share data in a structured way, often times using a markup language
+such as XML or JSON, mastodon posts (or 'tweets') are no exceptions to the rule.
+
+Every event that I am streaming from the stream API is an ordered pair,
+(CRUD action, data: payload) and the payload part of the insert and update
+actions is in the JSON structured format
+
+I am certain that if need be any of the fields of the data can turnout to be useful
+for some kind of analysis, however in the case of my project, the only relevant
+fields are:
+
+1) id
+2) created_at
+3) in_reply_to_account
+4) sensitive
+5) visibility
+6) uri
+7) url
+8) favourites_count
+9) edited_at
+10) avatar_static
+11) header
+12) followers_count
+13) following_count
+14) statuses_count
+15) last_status_at
+16) pronouns
+17) verified_at
+18) media_attatchments
+19) mentions
+20) tags (saved in the end of the post)
+
+With this information, and a proper organization within Kafka Topics, can grant countless interesting investigations
+regarding social behavior, social influece and in general what is trending
+
+I conclude by stating that knowing how to use data is not allways so obvious, especially in today's day and age
+where anyone, with the right skills, can build anything

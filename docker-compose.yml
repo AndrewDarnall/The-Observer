@@ -6,19 +6,80 @@ services:
     image: tap_project:stream_connector_2
     container_name: streamConnector
     networks:
-      - tap_project
+      - tap_project_2
     volumes:
       - datastorage:/app/datastorage
   data_ingestor:
     image: tap_project:data_ingestor
     container_name: dataIngestor
     networks:
-      - tap_project
+      - tap_project_2
     volumes:
       - datastorage:/datastorage
-  
+  data_streamer_zookeeper:
+    image: tap_project:kafka
+    container_name: kafkaZK
+    environment:
+      - KAFKA_ACTION=start-zk
+    networks:
+      tap_project_2:
+        ipv4_address: 10.0.100.22
+    ports:
+      - "2181:2181"
+  data_streamer_zookeeper_ui:
+    image: juris/zkui
+    container_name: zkui
+    environment:
+      - ZK_SERVER=10.0.100.22:2181
+    ports:
+      - "9090:9090"
+    depends_on:
+      - data_streamer_zookeeper
+  data_streamer_kafkaServer:
+    image: tap_project:kafka
+    container_name: kafkaServer
+    environment:
+      - KAFKA_ACTION=start-kafka
+    networks:
+      tap_project_2:
+        ipv4_address: 10.0.100.23
+    ports:
+      - "9092:9092"
+    depends_on:
+      - data_streamer_zookeeper
+  data_streamer_kafkaServer_ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafkaUi
+    environment:
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=10.0.100.23:9092
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=10.0.100.22:2181
+    networks:
+      - tap_project_2
+    ports:
+      - "8080:8080"
+    depends_on:
+      - data_streamer_kafkaServer
+  topic_create:
+    image: tap_project:kafka
+    environment:
+      - KAFKA_ACTION=create-topic
+      - KAKFA_SERVER=10.0.100.23
+      - KAFKA_TOPIC=dataflow
+    networks:
+      tap_project_2:
+        ipv4_address: 10.0.100.24
+    depends_on:
+      - data_streamer_kafkaServer
+  # Need to run the Kafka Stream Driver
+
+
 networks:
-  tap_project:
+  tap_project_2:
+    external: true  
 
 volumes:
   datastorage:
+
+# Pro tip 1 --> use the external:true flag to use existing docker networks
+# Pro tip 2 --> docker-compose rm -svf (for a clean docker-compose environment)
+# Pro tip 3 --> use dynamic IP addresses using docker's internal DNS
