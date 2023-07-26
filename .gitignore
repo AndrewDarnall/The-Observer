@@ -4,3 +4,5 @@ get_kafka.sh
 setup.sh
 TODO_LIST.txt
 *.tgz
+/Data_Processing/setup/*.tgz
+/Data_Streaming/setup/*.tgz
