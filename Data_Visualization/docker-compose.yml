@@ -1,0 +1,18 @@
+version: '3.3'
+services:
+  kibana:
+    image: tap_project:kibana
+    container_name: kibana
+    hostname: kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - xpack.security.enabled=false
+      - KBN_PATH_CONF=/usr/share/kibana/config
+    networks:
+      tap_project_2:
+        ipv4_address: 10.0.100.52
+
+networks:
+  tap_project_2:
+    external: true

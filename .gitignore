@@ -1,8 +1,6 @@
-async.js
-async_example.py
-async_2.py
-async2.js
-async3.js
-*.cs
-*.exe
-kafka_2.13-3.4.1.tgz
+test_3.js
+build_all.sh
+get_kafka.sh
+setup.sh
+TODO_LIST.txt
+*.tgz

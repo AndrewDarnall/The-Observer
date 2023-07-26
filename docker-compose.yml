@@ -1,14 +1,35 @@
-# Docker Compose file for the project
-# Warning, the project is meant to be run in the cloud or with powerful hardware
+# TAP project 'The Observer' a.a. 2022/2023
 version: '3.3'
 services:
+
   stream_connector:
     image: tap_project:stream_connector_2
     container_name: streamConnector
     networks:
       - tap_project_2
+    environment:
+      - API=https://mastodon.uno/api/v1/streaming/public
     volumes:
       - datastorage:/app/datastorage
+    restart: unless-stopped
+    build:
+      context: ./Stream_Connector/API_reader/
+      dockerfile: Dockerfile
+
+  converter:
+    image: tap_project:converter
+    container_name: converter
+    networks:
+      - tap_project_2
+    volumes:
+      - datastorage:/app/datastorage
+    depends_on:
+      - stream_connector
+    restart: unless-stopped
+    build:
+      context: ./Stream_Connector/API_converter
+      dockerfile: Dockerfile
+
   data_ingestor:
     image: tap_project:data_ingestor
     container_name: dataIngestor
@@ -16,6 +37,11 @@ services:
       - tap_project_2
     volumes:
       - datastorage:/datastorage
+    restart: unless-stopped
+    build:
+      context: ./Data_Ingestion/containerized_camel/
+      dockerfile: Dockerfile
+
   data_streamer_zookeeper:
     image: tap_project:kafka
     container_name: kafkaZK
@@ -26,6 +52,11 @@ services:
         ipv4_address: 10.0.100.22
     ports:
       - "2181:2181"
+    restart: unless-stopped
+    build:
+      context: ./Data_Streaming
+      dockerfile: Dockerfile
+
   data_streamer_zookeeper_ui:
     image: juris/zkui
     container_name: zkui
@@ -35,6 +66,11 @@ services:
       - "9090:9090"
     depends_on:
       - data_streamer_zookeeper
+    restart: unless-stopped
+    build:
+      context: ./Data_Streaming
+      dockerfile: Dockerfile
+
   data_streamer_kafkaServer:
     image: tap_project:kafka
     container_name: kafkaServer
@@ -47,6 +83,11 @@ services:
       - "9092:9092"
     depends_on:
       - data_streamer_zookeeper
+    restart: unless-stopped
+    build:
+      context: ./Data_Streaming
+      dockerfile: Dockerfile
+
   data_streamer_kafkaServer_ui:
     image: provectuslabs/kafka-ui:latest
     container_name: kafkaUi
@@ -59,6 +100,11 @@ services:
       - "8080:8080"
     depends_on:
       - data_streamer_kafkaServer
+    restart: unless-stopped
+    build:
+      context: ./Data_Streaming
+      dockerfile: Dockerfile
+
   topic_create:
     image: tap_project:kafka
     environment:
@@ -70,7 +116,92 @@ services:
         ipv4_address: 10.0.100.24
     depends_on:
       - data_streamer_kafkaServer
-  # Need to run the Kafka Stream Driver
+    restart: unless-stopped
+    build:
+      context: ./Data_Streaming
+      dockerfile: Dockerfile
+
+  topic_create_2:
+    image: tap_project:kafka
+    environment:
+      - KAFKA_ACTION=create-topic
+      - KAKFA_SERVER=10.0.100.23
+      - KAFKA_TOPIC=universeodon
+    networks:
+      tap_project_2:
+        ipv4_address: 10.0.100.25
+    depends_on:
+      - data_streamer_kafkaServer
+    restart: unless-stopped
+    build:
+      context: ./Data_Streaming
+      dockerfile: Dockerfile
+
+  spark:
+      image: tap_project:spark
+      container_name: spark
+      environment:
+        - SPARK_ACTION=bash
+        - SPARK_MASTER_URL=spark://spark-master:7077
+        - SPARK_DEPLOY_MODE=client
+        - SPARK_APPLICATION_PYTHON_FILES=/opt/spark-app/sample.py
+      volumes:
+        - /home/drew/Data_Engineering_project/TAP_Project/Data_Processing/code:/opt/spark-app
+      deploy:
+        resources:
+          limits:
+            cpus: '4.0'
+            memory: 3g
+      networks:
+        - tap_project_2
+      command: spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.2,org.elasticsearch:elasticsearch-spark-30_2.12:8.2.0 --master local[*] /opt/spark-app/sample.py
+      depends_on:
+        - data_streamer_kafkaServer
+      restart: unless-stopped
+      build:
+        context: ./Data_Processing
+        dockerfile: Dockerfile
+
+  
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.7.1
+    container_name: elasticsearch
+    networks:
+      tap_project_2:
+        ipv4_address: 10.0.100.51
+    environment:
+      - node.name=elasticsearch
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - cluster.routing.allocation.disk.threshold_enabled=false
+    ports:
+      - "9300:9300"
+      - "9200:9200"
+    restart: unless-stopped
+    build:
+      context: ./Data_Indexing
+      dockerfile: Dockerfile
+  
+  kibana:
+    image: tap_project:kibana
+    container_name: kibana
+    hostname: kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - xpack.security.enabled=false
+      - KBN_PATH_CONF=/usr/share/kibana/config
+    networks:
+      tap_project_2:
+        ipv4_address: 10.0.100.52
+    depends_on: 
+      - elasticsearch
+    restart: unless-stopped
+    build:
+      context: ./Data_Visualization
+      dockerfile: Dockerfile
 
 
 networks:
@@ -79,7 +210,3 @@ networks:
 
 volumes:
   datastorage:
-
-# Pro tip 1 --> use the external:true flag to use existing docker networks
-# Pro tip 2 --> docker-compose rm -svf (for a clean docker-compose environment)
-# Pro tip 3 --> use dynamic IP addresses using docker's internal DNS

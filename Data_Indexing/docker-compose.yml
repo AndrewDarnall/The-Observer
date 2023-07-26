@@ -1,0 +1,46 @@
+version: '3.3'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.7.1
+    container_name: elasticsearch
+    networks:
+      tap_project_2:
+        ipv4_address: 10.0.100.51
+    environment:
+      - node.name=elasticsearch
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - cluster.routing.allocation.disk.threshold_enabled=false
+    ports:
+      - "9300:9300"
+      - "9200:9200"
+  metricbeat:
+    image: tap_project:metricbeat
+    container_name: metricbeat
+    environment:
+      - ELASTICSEARCH_HOSTS=10.0.100.51
+    networks:
+      tap_project_2:
+        ipv4_address: 10.0.100.53
+    depends_on:
+      - elasticsearch
+  kibana:
+    image: tap_project:kibana
+    container_name: kibana
+    hostname: kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - xpack.security.enabled=false
+      - KBN_PATH_CONF=/usr/share/kibana/config
+    networks:
+      tap_project_2:
+        ipv4_address: 10.0.100.52
+    depends_on:
+      - elasticsearch
+
+networks:
+  tap_project_2:
+    external: true
