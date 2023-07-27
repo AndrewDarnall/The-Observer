@@ -15,36 +15,30 @@ from elasticsearch import Elasticsearch
 from pyspark.sql.functions import *
 
 elastic_host="http://elasticsearch:9200"
-# elastic_host="http://localhost:9200"
 elastic_index="mastodonuno"
 kafkaServer="kafkaServer:9092"
-# kafkaServer="localhost:9092"
 topic = "dataflow"
 
-
-## is there a field in the mapping that should be used to specify the ES document ID
-# "es.mapping.id": "id"
-# 2023-05-27T08:46:57.100Z
-#se date field [2023-05-28T07:08:11.845Z] with format [yyyy-MM-dd'T'HH:mm:ss.SSSZ];
-# org.elasticsearch.hadoop.rest.EsHadoopRemoteException: date_time_parse_exception: Text '2023-05-28T07:08:11.845Z' could not be parsed at index 23
+# Fix the mappings
 es_mapping = {
-        'mappings': {
-        'properties': {
-            # Careful with the format for the data, "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-            "created_at": {"type": "date","format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ"},
-            "content": {"type": "text","fielddata": True}
-        }
+    "mappings": {
+        "properties": 
+            {
+                "id": {"type": "long"},
+                # "created_at": {"type": "date", "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ"},
+                "content": {"type": "text", "fielddata": True}
+            }
     }
 }
 
-es = Elasticsearch(hosts=elastic_host) 
+print("----------------- UPDATE: 10 -------------------")
+
+# Tweak the timeout value for connectivity errors
+es = Elasticsearch(hosts=elastic_host,request_timeout=60) 
 # make an API call to the Elasticsearch cluster
 # and have it return a response:
-response = es.indices.create(
-    index=elastic_index,
-    body=es_mapping,
-    # ignore=400 # ignore 400 already exists code
-)
+
+response = es.indices.create(index=elastic_index,body=es_mapping)
 
 if 'acknowledged' in response:
     if response['acknowledged'] == True:
@@ -54,9 +48,9 @@ if 'acknowledged' in response:
             print("Elasticsearch index not created!")
 
 # Define Training Set Structure
-tweetKafka = tp.StructType([
+tootKafka = tp.StructType([
     tp.StructField(name= 'id', dataType= tp.StringType(),  nullable= True),
-    tp.StructField(name= 'created_at', dataType= tp.StringType(),  nullable= True),
+    # tp.StructField(name= 'created_at', dataType= tp.StringType(),  nullable= True),
     tp.StructField(name= 'content',       dataType= tp.StringType(),  nullable= True)
 ])
 
@@ -76,49 +70,18 @@ schema = tp.StructType([
 sparkConf = SparkConf().set("es.nodes", "elasticsearch") \
                         .set("es.port", "9200")
 
-sc = SparkContext(appName="Observer", conf=sparkConf)
+sc = SparkContext(appName="TheObserver", conf=sparkConf)
 spark = SparkSession(sc)
 
 # Reduce the verbosity of logging messages
 sc.setLogLevel("ERROR")
 
-# print("Reading training set...")
-# read the dataset  
-# training_set = spark.read.csv('../tap/spark/dataset/training_set_sentipolc16.csv',
-#                         schema=schema,
-#                         header=True,
-#                         sep=',')
-#print("Done.")
-
-# tokenizer = Tokenizer(inputCol="content", outputCol="words")
-# ita=StopWordsRemover.loadDefaultStopWords("italian")
-# stopWords = StopWordsRemover(inputCol= 'words', outputCol= 'filtered_words',stopWords=ita)
-# hashtf = HashingTF(numFeatures=2**16, inputCol="filtered_words", outputCol='tf')
-# idf = IDF(inputCol='tf', outputCol="features", minDocFreq=5) #minDocFreq: remove sparse terms
-# model = LogisticRegression(featuresCol= 'features', labelCol= 'positive',maxIter=100)
-# pipeline = Pipeline(stages=[tokenizer, stopWords,hashtf, idf, model])
-
-# print("Training model...")
-# fit the pipeline model with the training data
-# pipelineFit = pipeline.fit(training_set)
-# print("Done.")
-
-# modelSummary=pipelineFit.stages[-1].summaryRUN touch ./datastorage/mastodon_data_.jsonl
-#    .load()
+# Kafka topic subscription
+df = spark.readStream.format("kafka").option("kafka.bootstrap.servers", kafkaServer).option("subscribe", topic).load()
 
 
 # This is where the actual pre-processing happens
-df = sc.selectExpr("CAST(value AS STRING)") \
-    .select(from_json("value", tweetKafka).alias("data")) \
-    .select("data.*")
-
-# Apply the machine learning model and select only the interesting columns
-# df = pipelineFit.transform(df) \
-#    .select("id", "created_at", "content", "prediction")
-
-# This might be a bad idea with a stream query ..
-# print("Showing the dataframe:\t{}".format(df.show()))
-
+df = df.selectExpr("CAST(value AS STRING)").select(from_json("value", tootKafka).alias("data")).select("data.*")
 
 # This is the stream query to apply
 query = df.writeStream.format("console").start()

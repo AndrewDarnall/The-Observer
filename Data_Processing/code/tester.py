@@ -1,7 +1,8 @@
 from elasticsearch import Elasticsearch
 
 
-elastic_host="http://localhost:9200"
+# elastic_host="http://localhost:9200"
+elastic_host="http://elasticsearch:9200"
 
 # Connect to Elasticsearch
 es = Elasticsearch(hosts=elastic_host)
@@ -19,11 +20,13 @@ mapping = {
     }
 }
 
+print("------------------------ ELASTICSEARCH == DICK -------------------------")
+
 # Create the index
-response = es.indices.create(index=index_name, body=mapping)
+response = es.indices.create(index=index_name,mappings=mapping)
 
 # Check if the index creation was successful
 if 'acknowledged' in response and response['acknowledged']:
-    print(f"Index '{index_name}' created successfully.")
+    print(f"----------->Index '{index_name}' created successfully.")
 else:
-    print(f"Failed to create index '{index_name}': {response}")
+    print(f"----------->Failed to create index '{index_name}': {response}")

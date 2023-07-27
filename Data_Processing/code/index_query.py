@@ -3,7 +3,8 @@ import requests
 
 def get_all_indices():
     # Elasticsearch server URL
-    es_url = "http://localhost:9200"
+    # es_url = "http://localhost:9200"
+    es_url = "http://elasticsearch:9200"
 
     try:
         # Send a GET request to Elasticsearch to retrieve all indices
@@ -23,13 +24,13 @@ def get_all_indices():
             # Extract and print the index names
             for line in index_lines:
                 index_name = line.split()[2]
-                print(index_name)
+                print("########>{}".format(index_name))
 
         else:
-            print(f"Failed to retrieve indices from Elasticsearch. Status Code: {response.status_code}")
+            print(f"###########>Failed to retrieve indices from Elasticsearch. Status Code: {response.status_code}")
     
     except requests.exceptions.RequestException as e:
-        print(f"Error: {e}")
+        print(f"~~~~~~~~~~~~~~~~~~>Error: {e}")
 
 
 get_all_indices()

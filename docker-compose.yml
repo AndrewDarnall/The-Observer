@@ -64,6 +64,8 @@ services:
       - ZK_SERVER=10.0.100.22:2181
     ports:
       - "9090:9090"
+    networks:
+      - tap_project_2
     depends_on:
       - data_streamer_zookeeper
     restart: unless-stopped
@@ -116,7 +118,6 @@ services:
         ipv4_address: 10.0.100.24
     depends_on:
       - data_streamer_kafkaServer
-    restart: unless-stopped
     build:
       context: ./Data_Streaming
       dockerfile: Dockerfile
@@ -132,7 +133,6 @@ services:
         ipv4_address: 10.0.100.25
     depends_on:
       - data_streamer_kafkaServer
-    restart: unless-stopped
     build:
       context: ./Data_Streaming
       dockerfile: Dockerfile
@@ -154,6 +154,7 @@ services:
             memory: 3g
       networks:
         - tap_project_2
+          #ipv4_address: 10.0.100.2
       command: spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.2,org.elasticsearch:elasticsearch-spark-30_2.12:8.2.0 --master local[*] /opt/spark-app/sample.py
       depends_on:
         - data_streamer_kafkaServer
@@ -162,10 +163,38 @@ services:
         context: ./Data_Processing
         dockerfile: Dockerfile
 
+  spark_processing:
+    image: tap_project:spark
+    container_name: spark_processing
+    environment:
+      - SPARK_ACTION=bash
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_DEPLOY_MODE=client
+      - SPARK_APPLICATION_PYTHON_FILES=/opt/spark-app/index_query.py
+    volumes:
+      - /home/drew/Data_Engineering_project/TAP_Project/Data_Processing/code:/opt/spark-app
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 4g
+    networks:
+      - tap_project_2
+          #ipv4_address: 10.0.100.3
+    depends_on:
+      - data_streamer_kafkaServer
+      - spark
+    command: spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.2,org.elasticsearch:elasticsearch-spark-30_2.12:8.2.0 --master local[*] /opt/spark-app/index_query.py
+    restart: unless-stopped
+    build:
+      context: ./Data_Processing
+      dockerfile: Dockerfile
+
   
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.7.1
     container_name: elasticsearch
+    hostname: elasticsearch
     networks:
       tap_project_2:
         ipv4_address: 10.0.100.51
@@ -179,10 +208,16 @@ services:
     ports:
       - "9300:9300"
       - "9200:9200"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
     restart: unless-stopped
     build:
       context: ./Data_Indexing
       dockerfile: Dockerfile
+    depends_on:
+      - spark
   
   kibana:
     image: tap_project:kibana
