@@ -2,37 +2,214 @@
 version: '3.3'
 services:
 
-  stream_connector:
-    image: tap_project:stream_connector_2
-    container_name: streamConnector
+  # datasource ==> mastodon.uno
+  stream_connector_1:
+    image: tap_project:streamConnector
+    container_name: streamConnector_1
     networks:
       - tap_project_2
     environment:
-      - API=https://mastodon.uno/api/v1/streaming/public
+      - STREAM_ENDPOINT=https://mastodon.uno/api/v1/streaming/public
+      - STREAM_API_NAME=mastodonuno
     volumes:
-      - datastorage:/app/datastorage
+      - datastorage:/app/data
     restart: unless-stopped
     build:
-      context: ./Stream_Connector/API_reader/
+      context: ./Stream_Connector/
       dockerfile: Dockerfile
 
-  converter:
-    image: tap_project:converter
-    container_name: converter
+  # datasource ==> mas.to
+  stream_connector_2:
+    image: tap_project:streamConnector
+    container_name: streamConnector_2
+    networks:
+      - tap_project_2
+    environment:
+      - STREAM_ENDPOINT=https://mas.to/api/v1/streaming/public
+      - STREAM_API_NAME=masto
+    volumes:
+      - datastorage:/app/data
+    restart: unless-stopped
+    build:
+      context: ./Stream_Connector/
+      dockerfile: Dockerfile
+
+  # datasource ==> mstdn.social
+  stream_connector_3:
+    image: tap_project:streamConnector
+    container_name: streamConnector_3
+    networks:
+      - tap_project_2
+    environment:
+      - STREAM_ENDPOINT=https://mstdn.social/api/v1/streaming/public
+      - STREAM_API_NAME=mstdnsocial
+    volumes:
+      - datastorage:/app/data
+    restart: unless-stopped
+    build:
+      context: ./Stream_Connector/
+      dockerfile: Dockerfile
+
+  # datasource ==> fosstodon.org
+  stream_connector_4:
+    image: tap_project:streamConnector
+    container_name: streamConnector_4
+    networks:
+      - tap_project_2
+    environment:
+      - STREAM_ENDPOINT=https://fosstodon.org/api/v1/streaming/public
+      - STREAM_API_NAME=fosstodonorg
+    volumes:
+      - datastorage:/app/data
+    restart: unless-stopped
+    build:
+      context: ./Stream_Connector/
+      dockerfile: Dockerfile
+
+  # datasource ==> climatejustice.social
+  stream_connector_5:
+    image: tap_project:streamConnector
+    container_name: streamConnector_5
+    networks:
+      - tap_project_2
+    environment:
+      - STREAM_ENDPOINT=https://climatejusitce.social/api/v1/streaming/public
+      - STREAM_API_NAME=climatejusticesocial
+    volumes:
+      - datastorage:/app/data
+    restart: unless-stopped
+    build:
+      context: ./Stream_Connector/
+      dockerfile: Dockerfile
+
+  # datasource ==> ravenation.club
+  stream_connector_6:
+    image: tap_project:streamConnector
+    container_name: streamConnector_6
+    networks:
+      - tap_project_2
+    environment:
+      - STREAM_ENDPOINT=https://ravenation.club/api/v1/streaming/public
+      - STREAM_API_NAME=ravenationclub
+    volumes:
+      - datastorage:/app/data
+    restart: unless-stopped
+    build:
+      context: ./Stream_Connector/
+      dockerfile: Dockerfile
+
+  # datasource ==> hostux.social
+  stream_connector_7:
+    image: tap_project:streamConnector
+    container_name: streamConnector_7
+    networks:
+      - tap_project_2
+    environment:
+      - STREAM_ENDPOINT=https://hostux.social/api/v1/streaming/public
+      - STREAM_API_NAME=hostuxsocial
+    volumes:
+      - datastorage:/app/data
+    restart: unless-stopped
+    build:
+      context: ./Stream_Connector/
+      dockerfile: Dockerfile
+
+  # server ~ mastodonuno
+  data_ingestor_1:
+    image: tap_project:data_ingestor
+    container_name: dataIngestor_1
+    environment:
+      - DATA_SOURCE=mastodonuno
     networks:
       - tap_project_2
     volumes:
-      - datastorage:/app/datastorage
-    depends_on:
-      - stream_connector
+      - datastorage:/datastorage
     restart: unless-stopped
     build:
-      context: ./Stream_Connector/API_converter
+      context: ./Data_Ingestion/containerized_camel/
       dockerfile: Dockerfile
 
-  data_ingestor:
+  # server ~ mas.to
+  data_ingestor_2:
     image: tap_project:data_ingestor
-    container_name: dataIngestor
+    container_name: dataIngestor_2
+    environment:
+      - DATA_SOURCE=masto
+    networks:
+      - tap_project_2
+    volumes:
+      - datastorage:/datastorage
+    restart: unless-stopped
+    build:
+      context: ./Data_Ingestion/containerized_camel/
+      dockerfile: Dockerfile
+
+  # server ~ mstdn.social
+  data_ingestor_3:
+    image: tap_project:data_ingestor
+    container_name: dataIngestor_3
+    environment:
+      - DATA_SOURCE=mstdnsocial
+    networks:
+      - tap_project_2
+    volumes:
+      - datastorage:/datastorage
+    restart: unless-stopped
+    build:
+      context: ./Data_Ingestion/containerized_camel/
+      dockerfile: Dockerfile
+
+  # server ~ fosstodon.org
+  data_ingestor_4:
+    image: tap_project:data_ingestor
+    container_name: dataIngestor_4
+    environment:
+      - DATA_SOURCE=fosstodonorg
+    networks:
+      - tap_project_2
+    volumes:
+      - datastorage:/datastorage
+    restart: unless-stopped
+    build:
+      context: ./Data_Ingestion/containerized_camel/
+      dockerfile: Dockerfile
+
+  # server ~ climatejustice.social
+  data_ingestor_5:
+    image: tap_project:data_ingestor
+    container_name: dataIngestor_5
+    environment:
+      - DATA_SOURCE=climatejusticesocial
+    networks:
+      - tap_project_2
+    volumes:
+      - datastorage:/datastorage
+    restart: unless-stopped
+    build:
+      context: ./Data_Ingestion/containerized_camel/
+      dockerfile: Dockerfile
+  
+  # server ~ revenation.club
+  data_ingestor_6:
+    image: tap_project:data_ingestor
+    container_name: dataIngestor_6
+    environment:
+      - DATA_SOURCE=ravenationclub
+    networks:
+      - tap_project_2
+    volumes:
+      - datastorage:/datastorage
+    restart: unless-stopped
+    build:
+      context: ./Data_Ingestion/containerized_camel/
+      dockerfile: Dockerfile
+
+  # server ~ hostux.social
+  data_ingestor_7:
+    image: tap_project:data_ingestor
+    container_name: dataIngestor_7
+    environment:
+      - DATA_SOURCE=hostuxsocial
     networks:
       - tap_project_2
     volumes:
@@ -107,12 +284,13 @@ services:
       context: ./Data_Streaming
       dockerfile: Dockerfile
 
-  topic_create:
+  # topic --> mastodonuno
+  topic_create_1:
     image: tap_project:kafka
     environment:
       - KAFKA_ACTION=create-topic
       - KAKFA_SERVER=10.0.100.23
-      - KAFKA_TOPIC=dataflow
+      - KAFKA_TOPIC=mastodonuno
     networks:
       tap_project_2:
         ipv4_address: 10.0.100.24
@@ -122,15 +300,96 @@ services:
       context: ./Data_Streaming
       dockerfile: Dockerfile
 
+  # topic --> masto
   topic_create_2:
     image: tap_project:kafka
     environment:
       - KAFKA_ACTION=create-topic
       - KAKFA_SERVER=10.0.100.23
-      - KAFKA_TOPIC=universeodon
+      - KAFKA_TOPIC=masto
     networks:
       tap_project_2:
         ipv4_address: 10.0.100.25
+    depends_on:
+      - data_streamer_kafkaServer
+    build:
+      context: ./Data_Streaming
+      dockerfile: Dockerfile
+
+  # topic --> mstdnsocial
+  topic_create_3:
+    image: tap_project:kafka
+    environment:
+      - KAFKA_ACTION=create-topic
+      - KAKFA_SERVER=10.0.100.23
+      - KAFKA_TOPIC=mstdnsocial
+    networks:
+      tap_project_2:
+        ipv4_address: 10.0.100.26
+    depends_on:
+      - data_streamer_kafkaServer
+    build:
+      context: ./Data_Streaming
+      dockerfile: Dockerfile
+
+  # topic --> fosstodon.orgs
+  topic_create_4:
+    image: tap_project:kafka
+    environment:
+      - KAFKA_ACTION=create-topic
+      - KAKFA_SERVER=10.0.100.23
+      - KAFKA_TOPIC=fosstodonorg
+    networks:
+      tap_project_2:
+        ipv4_address: 10.0.100.27
+    depends_on:
+      - data_streamer_kafkaServer
+    build:
+      context: ./Data_Streaming
+      dockerfile: Dockerfile
+
+  # topic --> climatejusticesocial
+  topic_create_5:
+    image: tap_project:kafka
+    environment:
+      - KAFKA_ACTION=create-topic
+      - KAKFA_SERVER=10.0.100.23
+      - KAFKA_TOPIC=climatejusticesocial
+    networks:
+      tap_project_2:
+        ipv4_address: 10.0.100.28
+    depends_on:
+      - data_streamer_kafkaServer
+    build:
+      context: ./Data_Streaming
+      dockerfile: Dockerfile
+
+  # topic --> ravenationclub
+  topic_create_6:
+    image: tap_project:kafka
+    environment:
+      - KAFKA_ACTION=create-topic
+      - KAKFA_SERVER=10.0.100.23
+      - KAFKA_TOPIC=ravenationclub
+    networks:
+      tap_project_2:
+        ipv4_address: 10.0.100.29
+    depends_on:
+      - data_streamer_kafkaServer
+    build:
+      context: ./Data_Streaming
+      dockerfile: Dockerfile
+
+  # topic --> hostuxsocial
+  topic_create_7:
+    image: tap_project:kafka
+    environment:
+      - KAFKA_ACTION=create-topic
+      - KAKFA_SERVER=10.0.100.23
+      - KAFKA_TOPIC=hostuxsocial
+    networks:
+      tap_project_2:
+        ipv4_address: 10.0.100.30
     depends_on:
       - data_streamer_kafkaServer
     build:

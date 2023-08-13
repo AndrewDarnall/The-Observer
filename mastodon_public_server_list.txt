@@ -1,0 +1,11 @@
+This is a potentially incomplete mastodon public server list
+
+1) mastodon.uno
+2) mas.to
+3) mstdn.social
+4) fosstodon.org
+5) climatejustice.social
+6) ravenation.club
+7) hostux.social
+
+To access the stream API simply use the template: https://"mastodon-server-name"/api/v1/stream/public
