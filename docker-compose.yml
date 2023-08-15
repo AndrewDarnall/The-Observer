@@ -504,3 +504,4 @@ networks:
 
 volumes:
   datastorage:
+    external: true

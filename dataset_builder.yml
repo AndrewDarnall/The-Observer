@@ -1,4 +1,8 @@
 # Data Collector for the BERTopic model
+# ==================================================================
+#     Simply run the docker-compose for however long you need
+#     and collect all of the data you need
+# ==================================================================
 version: "3.3"
 services:
 
@@ -121,3 +125,4 @@ networks:
 
 volumes:
   datastorage:
+    external: true
