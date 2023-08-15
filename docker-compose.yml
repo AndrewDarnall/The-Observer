@@ -73,7 +73,7 @@ services:
     networks:
       - tap_project_2
     environment:
-      - STREAM_ENDPOINT=https://climatejusitce.social/api/v1/streaming/public
+      - STREAM_ENDPOINT=https://climatejustice.social/api/v1/streaming/public
       - STREAM_API_NAME=climatejusticesocial
     volumes:
       - datastorage:/app/data

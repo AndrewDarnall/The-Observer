@@ -1,0 +1,123 @@
+# Data Collector for the BERTopic model
+version: "3.3"
+services:
+
+  # datasource ==> mastodon.uno
+  stream_connector_1:
+    image: tap_project:streamConnector
+    container_name: streamConnector_1
+    networks:
+      - tap_project_2
+    environment:
+      - STREAM_ENDPOINT=https://mastodon.uno/api/v1/streaming/public
+      - STREAM_API_NAME=mastodonuno
+    volumes:
+      - datastorage:/app/data
+    restart: unless-stopped
+    build:
+      context: ./Stream_Connector/
+      dockerfile: Dockerfile
+
+  # datasource ==> mas.to
+  stream_connector_2:
+    image: tap_project:streamConnector
+    container_name: streamConnector_2
+    networks:
+      - tap_project_2
+    environment:
+      - STREAM_ENDPOINT=https://mas.to/api/v1/streaming/public
+      - STREAM_API_NAME=masto
+    volumes:
+      - datastorage:/app/data
+    restart: unless-stopped
+    build:
+      context: ./Stream_Connector/
+      dockerfile: Dockerfile
+
+  # datasource ==> mstdn.social
+  stream_connector_3:
+    image: tap_project:streamConnector
+    container_name: streamConnector_3
+    networks:
+      - tap_project_2
+    environment:
+      - STREAM_ENDPOINT=https://mstdn.social/api/v1/streaming/public
+      - STREAM_API_NAME=mstdnsocial
+    volumes:
+      - datastorage:/app/data
+    restart: unless-stopped
+    build:
+      context: ./Stream_Connector/
+      dockerfile: Dockerfile
+
+  # datasource ==> fosstodon.org
+  stream_connector_4:
+    image: tap_project:streamConnector
+    container_name: streamConnector_4
+    networks:
+      - tap_project_2
+    environment:
+      - STREAM_ENDPOINT=https://fosstodon.org/api/v1/streaming/public
+      - STREAM_API_NAME=fosstodonorg
+    volumes:
+      - datastorage:/app/data
+    restart: unless-stopped
+    build:
+      context: ./Stream_Connector/
+      dockerfile: Dockerfile
+
+  # datasource ==> climatejustice.social
+  stream_connector_5:
+    image: tap_project:streamConnector
+    container_name: streamConnector_5
+    networks:
+      - tap_project_2
+    environment:
+      - STREAM_ENDPOINT=https://climatejustice.social/api/v1/streaming/public
+      - STREAM_API_NAME=climatejusticesocial
+    volumes:
+      - datastorage:/app/data
+    restart: unless-stopped
+    build:
+      context: ./Stream_Connector/
+      dockerfile: Dockerfile
+
+  # datasource ==> ravenation.club
+  stream_connector_6:
+    image: tap_project:streamConnector
+    container_name: streamConnector_6
+    networks:
+      - tap_project_2
+    environment:
+      - STREAM_ENDPOINT=https://ravenation.club/api/v1/streaming/public
+      - STREAM_API_NAME=ravenationclub
+    volumes:
+      - datastorage:/app/data
+    restart: unless-stopped
+    build:
+      context: ./Stream_Connector/
+      dockerfile: Dockerfile
+
+  # datasource ==> hostux.social
+  stream_connector_7:
+    image: tap_project:streamConnector
+    container_name: streamConnector_7
+    networks:
+      - tap_project_2
+    environment:
+      - STREAM_ENDPOINT=https://hostux.social/api/v1/streaming/public
+      - STREAM_API_NAME=hostuxsocial
+    volumes:
+      - datastorage:/app/data
+    restart: unless-stopped
+    build:
+      context: ./Stream_Connector/
+      dockerfile: Dockerfile
+
+
+networks:
+  tap_project_2:
+    external: true
+
+volumes:
+  datastorage:
