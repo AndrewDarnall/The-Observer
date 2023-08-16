@@ -239,8 +239,9 @@ services:
     container_name: zkui
     environment:
       - ZK_SERVER=10.0.100.22:2181
+    # Debug here
     ports:
-      - "9090:9090"
+      - "9096:9090"
     networks:
       - tap_project_2
     depends_on:
@@ -275,8 +276,9 @@ services:
       - KAFKA_CLUSTERS_0_ZOOKEEPER=10.0.100.22:2181
     networks:
       - tap_project_2
+    # Debugging
     ports:
-      - "8080:8080"
+      - "8090:8080"
     depends_on:
       - data_streamer_kafkaServer
     restart: unless-stopped
@@ -501,6 +503,7 @@ services:
 networks:
   tap_project_2:
     external: true  
+    driver: bridge
 
 volumes:
   datastorage:
