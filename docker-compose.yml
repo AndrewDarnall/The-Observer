@@ -405,7 +405,7 @@ services:
         - SPARK_DEPLOY_MODE=client
         - SPARK_APPLICATION_PYTHON_FILES=/opt/spark-app/sample.py
       volumes:
-        - /home/drew/Data_Engineering_project/TAP_Project/Data_Processing/code:/opt/spark-app
+        - ./Data_Processing/code:/opt/spark-app
       deploy:
         resources:
           limits:
@@ -431,7 +431,7 @@ services:
       - SPARK_DEPLOY_MODE=client
       - SPARK_APPLICATION_PYTHON_FILES=/opt/spark-app/index_query.py
     volumes:
-      - /home/drew/Data_Engineering_project/TAP_Project/Data_Processing/code:/opt/spark-app
+      - ./Data_Processing/code:/opt/spark-app
     deploy:
       resources:
         limits:
