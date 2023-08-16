@@ -398,14 +398,21 @@ services:
       context: ./Data_Streaming
       dockerfile: Dockerfile
 
-  spark:
+  # stream ~ mastodonuno
+  spark_1:
       image: tap_project:spark
       container_name: spark
       environment:
         - SPARK_ACTION=bash
         - SPARK_MASTER_URL=spark://spark-master:7077
         - SPARK_DEPLOY_MODE=client
-        - SPARK_APPLICATION_PYTHON_FILES=/opt/spark-app/sample.py
+        - SPARK_APPLICATION_PYTHON_FILES=/opt/spark-app/topic_modelling.py
+        - KAFKA_TOPIC=mastodonuno
+      # Remember the topic ^
+        - ELASTIC_HOST_URL=http://localhost:9200
+      # Configure the Data Indexer dynamically
+        - KAFKA_SERVER_URL=kafkaServer:9092
+      # Configure the kafka server dynamically
       volumes:
         - ./Data_Processing/code:/opt/spark-app
       deploy:
@@ -416,7 +423,7 @@ services:
       networks:
         - tap_project_2
           #ipv4_address: 10.0.100.2
-      command: spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.2,org.elasticsearch:elasticsearch-spark-30_2.12:8.2.0 --master local[*] /opt/spark-app/sample.py
+      command: spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.2,org.elasticsearch:elasticsearch-spark-30_2.12:8.2.0 --master local[*] /opt/spark-app/topic_modelling.py
       depends_on:
         - data_streamer_kafkaServer
       restart: unless-stopped
@@ -444,7 +451,7 @@ services:
           #ipv4_address: 10.0.100.3
     depends_on:
       - data_streamer_kafkaServer
-      - spark
+      - spark_1
     command: spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.2,org.elasticsearch:elasticsearch-spark-30_2.12:8.2.0 --master local[*] /opt/spark-app/index_query.py
     restart: unless-stopped
     build:
@@ -478,7 +485,7 @@ services:
       context: ./Data_Indexing
       dockerfile: Dockerfile
     depends_on:
-      - spark
+      - spark_1
   
   kibana:
     image: tap_project:kibana
