@@ -112,13 +112,34 @@ if 'acknowledged' in response:
 
 
 # Output the processed data to an output sink ~ ElasticSearch in the project's case
+
+# Write to Elasticsearch sink
+#query = df.writeStream \
+#    .outputMode("append") \
+#    .format("org.elasticsearch.spark.sql") \
+#    .options(**es_settings) \
+#    .start()
+
 query = df.writeStream \
+    .option("checkpointLocation", "/save/location") \
+    .format("es") \
+    .start(elastic_index) \
+    .awaitTermination()
+
+
+# For debugging
+query_2 = df.writeStream \
     .outputMode("append") \
     .format("console") \
     .start()
+# For debugging
 
 # Wait for the query to terminate
 query.awaitTermination()
+
+# For debugging only
+query_2.awaitTermination()
+# For debugging only
 
 # Stop the Spark session
 spark.stop()
