@@ -409,7 +409,7 @@ services:
         - SPARK_APPLICATION_PYTHON_FILES=/opt/spark-app/topic_modelling.py
         - KAFKA_TOPIC=mastodonuno
       # Remember the topic ^
-        - ELASTIC_HOST_URL=http://localhost:9200
+        - ELASTIC_HOST_URL=http://elasticsearch:9200
       # Configure the Data Indexer dynamically
         - KAFKA_SERVER_URL=kafkaServer:9092
       # Configure the kafka server dynamically
@@ -480,9 +480,11 @@ services:
     restart: unless-stopped
     depends_on:
       - spark_1
+    networks:
+      - tap_project_2
   
   kibana:
-    image: tap_project:kibana
+    image: docker.elastic.co/kibana/kibana:8.2.0
     container_name: kibana
     hostname: kibana
     ports:
@@ -491,8 +493,9 @@ services:
       - xpack.security.enabled=false
       - KBN_PATH_CONF=/usr/share/kibana/config
     networks:
-      tap_project_2:
-        ipv4_address: 10.0.100.52
+      - tap_project_2
+    volumes:
+      - ./Data_Visualization/kibana.yml:/usr/share/kibana/config/kibana.yml
     depends_on: 
       - elasticsearch
     restart: unless-stopped

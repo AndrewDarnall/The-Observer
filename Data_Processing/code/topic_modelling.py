@@ -97,7 +97,7 @@ es = Elasticsearch(hosts=elastic_host,request_timeout=120)
 
 # Configuring the elastic-indeces
 try:
-    response = es.indices.create(index=elastic_index, mappings=es_mapping)
+    response = es.indices.create(index=elastic_index, body=es_mapping, ignore=400)
 except Exception as e:
     print("ElasticSearch EXCEPTION raised:\t{}".format(e))
 
