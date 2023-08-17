@@ -15,6 +15,9 @@ RUN yum -y install glibc
 
 ADD code/requirements.txt /code/requirements.txt
 
+# Or else there will be build failures
+RUN yum -y install python3-devel
+
 RUN pip3 install -r /code/requirements.txt
 
 RUN pip3 install pyspark==3.4.0 elasticsearch==8.2.0 kafka-python==2.0.2 
