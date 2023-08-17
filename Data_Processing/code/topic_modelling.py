@@ -41,16 +41,24 @@ es_mapping = {
 
 # ElasticSearch settings
 es_settings = {
-    "es.nodes": "localhost",
+    "es.nodes": "elasticsearch",
     "es.port": "9200",
+    "es.nodes.wan.only": "true",
     "es.resource": elastic_index,
+    "es.mapping.id": "id",
     "es.write.operation": "index"
 }
 
 
 # Configuring the SparkSession with ElasticSearch
-sparkConf = SparkConf().set("es.nodes", "elasticsearch") \
-                        .set("es.port", "9200")
+sparkConf = SparkConf() \
+        .set('spark.streaming.stopGracefullyOnShutdown', 'true') \
+        .set('spark.streaming.kafka.consumer.cache.enabled', 'false') \
+        .set('spark.streaming.backpressure.enabled', 'true') \
+        .set('spark.streaming.kafka.maxRatePerPartition', '100') \
+        .set('spark.streaming.kafka.consumer.poll.ms', '512') \
+        .set('spark.jars.packages', 'org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.1') \
+        .set('spark.sql.streaming.checkpointLocation', '/tmp/checkpoint')
 
 pyspark_app_name = "topic_" + kafka_topic
 
@@ -121,10 +129,10 @@ if 'acknowledged' in response:
 #    .start()
 
 query = df.writeStream \
-    .option("checkpointLocation", "/save/location") \
+    .outputMode("append") \
     .format("es") \
-    .start(elastic_index) \
-    .awaitTermination()
+    .options(**es_settings) \
+    .start()
 
 
 # For debugging
