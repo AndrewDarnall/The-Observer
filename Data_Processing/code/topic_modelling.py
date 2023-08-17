@@ -18,18 +18,20 @@ from html import unescape
 
 # HTML Text parser function
 def remove_html_tags(text):
+
     # Use regular expression to remove HTML tags and related content
     try:
-        cleaned_text = re.sub(r'<[^>]+>', '', text)
+        text = re.sub(r'<[^>]+>', '', text)
     except Exception as e:
         print("Parser exception caught:\t{}".format(e))
         return text
     try:
-        cleaned_text = unescape(cleaned_text)
+        text = unescape(text)
     except Exception as e:
         print("HTML escaping exception caught:\t{}".format(e))
         return text
-    return cleaned_text
+    
+    return text
 
 
 ###########################################################################################
