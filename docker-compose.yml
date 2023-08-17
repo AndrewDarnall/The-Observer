@@ -401,7 +401,7 @@ services:
   # stream ~ mastodonuno
   spark_1:
       image: tap_project:spark
-      container_name: spark
+      container_name: spark_1
       environment:
         - SPARK_ACTION=bash
         - SPARK_MASTER_URL=spark://spark-master:7077
@@ -413,6 +413,8 @@ services:
       # Configure the Data Indexer dynamically
         - KAFKA_SERVER_URL=kafkaServer:9092
       # Configure the kafka server dynamically
+        - ELASTIC_SERVER_HOSTNAME=elasticsearch
+      # Configure the elasticsearch hostname
       volumes:
         - ./Data_Processing/code:/opt/spark-app
       deploy:
@@ -431,32 +433,40 @@ services:
         context: ./Data_Processing
         dockerfile: Dockerfile
 
-  spark_processing:
-    image: tap_project:spark
-    container_name: spark_processing
-    environment:
-      - SPARK_ACTION=bash
-      - SPARK_MASTER_URL=spark://spark-master:7077
-      - SPARK_DEPLOY_MODE=client
-      - SPARK_APPLICATION_PYTHON_FILES=/opt/spark-app/index_query.py
-    volumes:
-      - ./Data_Processing/code:/opt/spark-app
-    deploy:
-      resources:
-        limits:
-          cpus: '4.0'
-          memory: 4g
-    networks:
-      - tap_project_2
-          #ipv4_address: 10.0.100.3
-    depends_on:
-      - data_streamer_kafkaServer
-      - spark_1
-    command: spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.2,org.elasticsearch:elasticsearch-spark-30_2.12:8.2.0 --master local[*] /opt/spark-app/index_query.py
-    restart: unless-stopped
-    build:
-      context: ./Data_Processing
-      dockerfile: Dockerfile
+  # stream ~ masto
+  spark_2:
+      image: tap_project:spark
+      container_name: spark_2
+      environment:
+        - SPARK_ACTION=bash
+        - SPARK_MASTER_URL=spark://spark-master:7077
+        - SPARK_DEPLOY_MODE=client
+        - SPARK_APPLICATION_PYTHON_FILES=/opt/spark-app/topic_modelling.py
+        - KAFKA_TOPIC=masto
+      # Remember the topic ^
+        - ELASTIC_HOST_URL=http://elasticsearch:9200
+      # Configure the Data Indexer dynamically
+        - KAFKA_SERVER_URL=kafkaServer:9092
+      # Configure the kafka server dynamically
+        - ELASTIC_SERVER_HOSTNAME=elasticsearch
+      # Configure the elasticsearch hostname
+      volumes:
+        - ./Data_Processing/code:/opt/spark-app
+      deploy:
+        resources:
+          limits:
+            cpus: '4.0'
+            memory: 3g
+      networks:
+        - tap_project_2
+          #ipv4_address: 10.0.100.2
+      command: spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.2,org.elasticsearch:elasticsearch-spark-30_2.12:8.2.0 --master local[*] /opt/spark-app/topic_modelling.py
+      depends_on:
+        - data_streamer_kafkaServer
+      restart: unless-stopped
+      build:
+        context: ./Data_Processing
+        dockerfile: Dockerfile
 
   
   elasticsearch:

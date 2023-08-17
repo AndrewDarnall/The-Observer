@@ -6,14 +6,39 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import from_json, col
 from pyspark.sql.types import StructType, StringType, StructField
 from pyspark.conf import SparkConf
+from pyspark.sql.functions import udf
 
 from elasticsearch import Elasticsearch
 
 import os
 import random
 
+import re
+from html import unescape
+
+# HTML Text parser function
+def remove_html_tags(text):
+    # Use regular expression to remove HTML tags and related content
+    try:
+        cleaned_text = re.sub(r'<[^>]+>', '', text)
+    except Exception as e:
+        print("Parser exception caught:\t{}".format(e))
+        return text
+    try:
+        cleaned_text = unescape(cleaned_text)
+    except Exception as e:
+        print("HTML escaping exception caught:\t{}".format(e))
+        return text
+    return cleaned_text
+
+
+###########################################################################################
+#                                           SETUP                                         #
+###########################################################################################
+
 # Elasticsearch details
 elastic_host = os.getenv("ELASTIC_HOST_URL")
+elastic_server = os.getenv("ELASTIC_SERVER_HOSTNAME")
 
 # Parametrically obtain the Kafka Topic
 kafka_topic = os.getenv("KAFKA_TOPIC")
@@ -32,8 +57,10 @@ es_mapping = {
                 "id": {"type": "long"},
                 "topic": {"type": "text"},
                 "created_at": {"type": "date"}, #, "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ"},
+                # "cleaned_content": {"type": "text", "fielddata": True},
                 "content": {"type": "text", "fielddata": True},
-                "enrichment": {"type": "text"}
+                # Tweak the enrichment at will
+                "enrichment": {"type": "long"}
             }
     }
 }
@@ -41,7 +68,7 @@ es_mapping = {
 
 # ElasticSearch settings
 es_settings = {
-    "es.nodes": "elasticsearch",
+    "es.nodes": elastic_server,
     "es.port": "9200",
     "es.nodes.wan.only": "true",
     "es.resource": elastic_index,
@@ -49,6 +76,10 @@ es_settings = {
     "es.write.operation": "index"
 }
 
+
+###########################################################################################
+#                                   Spark App Config                                      #
+###########################################################################################
 
 # Configuring the SparkSession with ElasticSearch
 sparkConf = SparkConf() \
@@ -98,6 +129,13 @@ df = df.withColumn("enrichment", (col('id') * random.random()) % 5)
 # ^ This is a dummy example to run some processing on the data stream
 
 
+# <====================== UDF ==========================> #
+remove_html_udf = udf(remove_html_tags, StringType())
+
+# Processing the noisy text data
+df = df.withColumn("content", remove_html_udf(col('content')))
+
+
 # -------------------- Output stream phase ------------------------ #
 
 # Configuring the ElasticSearch cli
@@ -120,14 +158,6 @@ if 'acknowledged' in response:
 
 
 # Output the processed data to an output sink ~ ElasticSearch in the project's case
-
-# Write to Elasticsearch sink
-#query = df.writeStream \
-#    .outputMode("append") \
-#    .format("org.elasticsearch.spark.sql") \
-#    .options(**es_settings) \
-#    .start()
-
 query = df.writeStream \
     .outputMode("append") \
     .format("es") \
@@ -135,19 +165,29 @@ query = df.writeStream \
     .start()
 
 
-# For debugging
+
+
+# For debugging & visualization
 query_2 = df.writeStream \
     .outputMode("append") \
     .format("console") \
     .start()
-# For debugging
+# For debugging & visualization
+
+
+
 
 # Wait for the query to terminate
 query.awaitTermination()
 
+
+
 # For debugging only
 query_2.awaitTermination()
 # For debugging only
+
+
+
 
 # Stop the Spark session
 spark.stop()
