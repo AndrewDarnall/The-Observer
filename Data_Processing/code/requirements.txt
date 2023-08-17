@@ -2,3 +2,4 @@ numpy==1.21.5
 pyspark==3.4.0
 spacy==3.5.3
 bertopic
+scikit-learn
