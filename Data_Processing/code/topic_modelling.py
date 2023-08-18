@@ -16,6 +16,18 @@ import random
 import re
 from html import unescape
 
+from bertopic import BERTopic
+import joblib
+import torch
+
+
+# Machine Learning model setup
+model_path = 'CPU_job_trained_bert_model.pkl'
+
+# Load the model (beware, the deserialization might be troublesome if trained on a CUDA device i.e. google colab T4 GPU)
+topic_model = BERTopic.load(model_path) 
+
+
 # HTML Text parser function
 def remove_html_tags(text):
 

@@ -417,6 +417,7 @@ services:
       # Configure the elasticsearch hostname
       volumes:
         - ./Data_Processing/code:/opt/spark-app
+        - ./Data_Processing/models:/opt/spark
       deploy:
         resources:
           limits:
@@ -452,6 +453,7 @@ services:
       # Configure the elasticsearch hostname
       volumes:
         - ./Data_Processing/code:/opt/spark-app
+        - ./Data_Processing/models:/opt/spark
       deploy:
         resources:
           limits:
