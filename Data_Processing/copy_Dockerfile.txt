@@ -1,4 +1,14 @@
+
+
+
+
+
+
+
+
+
 FROM amazoncorretto:17
+
 
 # Install Anaconda
 RUN yum -y update && yum install -y wget tar make
@@ -9,17 +19,15 @@ RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh &
     /opt/conda/bin/conda init && \
     echo "conda activate" >> ~/.bashrc
 
-# Set up environment variables
-# ENV PATH /opt/conda/bin:$PATH
+# Activate the conda environment
+SHELL ["/bin/bash", "--login", "-c"]
 
-# Create a conda environment and install required packages
 # Install required packages using conda
-RUN source /opt/conda/bin/activate && \
-    conda install -y -c conda-forge bertopic scipy
+SHELL ["/bin/bash", "--login", "-c", "source /opt/conda/bin/activate && conda install -y -c conda-forge bertopic scipy"]
+RUN conda install -y -c conda-forge bertopic scipy
+# Last hope
 
 
-
-# ...
 
 ENV SPARK_VERSION=3.4.0
 ENV HADOOP_VERSION=hadoop3

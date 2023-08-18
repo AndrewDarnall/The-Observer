@@ -6,3 +6,4 @@ TODO_LIST.txt
 *.tgz
 /Data_Processing/setup/*.tgz
 /Data_Streaming/setup/*.tgz
+/Data_Processing/models/*.pkl

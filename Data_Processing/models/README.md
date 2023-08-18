@@ -1,0 +1,3 @@
+# Whoops
+
+Turns out that using git LFS on 5 Gigs of trained models is not such a good idea ....

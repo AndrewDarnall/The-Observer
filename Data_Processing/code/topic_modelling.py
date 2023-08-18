@@ -21,11 +21,19 @@ import joblib
 import torch
 
 
+import scipy
+import scipy.sparse
+
+
 # Machine Learning model setup
-model_path = 'CPU_job_trained_bert_model.pkl'
+# model_path = os.getcwd() + '/CPU_job_trained_bert_model.pkl'
+model_path = os.getcwd() + '/CPU_job_non_condensed_trained_bert_model.pkl'
 
 # Load the model (beware, the deserialization might be troublesome if trained on a CUDA device i.e. google colab T4 GPU)
-topic_model = BERTopic.load(model_path) 
+# topic_model = BERTopic.load(model_path) 
+
+# Alternatively
+topic_model = joblib.load(model_path)
 
 
 # HTML Text parser function
