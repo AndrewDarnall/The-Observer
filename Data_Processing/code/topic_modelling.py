@@ -26,14 +26,20 @@ import scipy.sparse
 
 
 # Machine Learning model setup
-# model_path = os.getcwd() + '/CPU_job_trained_bert_model.pkl'
-model_path = os.getcwd() + '/CPU_job_non_condensed_trained_bert_model.pkl'
+# model_path = os.getcwd() + '/CPU_trained_bert_model.pkl'
+# model_path = os.getcwd() + '/CPU_job_non_condensed_trained_bert_model.pkl'
+model_path = os.getcwd()
+embedding_model_path = os.getcwd() + "/all-MiniLM-L6-v2"
+
+# Load the BERTopic model
+loaded_topic_model = BERTopic.load(model_path, embedding_model=embedding_model_path)
+
 
 # Load the model (beware, the deserialization might be troublesome if trained on a CUDA device i.e. google colab T4 GPU)
 # topic_model = BERTopic.load(model_path) 
 
 # Alternatively
-topic_model = joblib.load(model_path)
+# topic_model = joblib.load(model_path)
 
 
 # HTML Text parser function

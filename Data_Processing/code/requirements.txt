@@ -1,7 +1,12 @@
-numpy==1.21.5
-pyspark==3.4.0
-spacy==3.5.3
+#numpy==1.21.5
+numpy
+#pyspark==3.4.0
+pyspark
+#spacy==3.5.3
+spacy
 #bertopic
 joblib
 scikit-learn
 nltk
+elasticsearch
+#kafka-python
