@@ -79,8 +79,10 @@ es_mapping = {
                 "created_at": {"type": "date"}, #, "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ"},
                 # "cleaned_content": {"type": "text", "fielddata": True},
                 "content": {"type": "text", "fielddata": True},
+                # Dummy enrichment
+                # "enrichment": {"type": "long"}
                 # Tweak the enrichment at will
-                "enrichment": {"type": "long"}
+                "topics": {"type": "text"}
             }
     }
 }
@@ -145,7 +147,7 @@ df = df.select("timestamp", "topic", from_json("value", schema).alias("data"))
 df = df.select("timestamp", "topic","data.id","data.created_at","data.content")
 
 # Data enrichment portion
-df = df.withColumn("enrichment", (col('id') * random.random()) % 5)
+# df = df.withColumn("enrichmenr", (col('id') * random.random()) % 5)
 # ^ This is a dummy example to run some processing on the data stream
 
 
@@ -154,6 +156,24 @@ remove_html_udf = udf(remove_html_tags, StringType())
 
 # Processing the noisy text data
 df = df.withColumn("content", remove_html_udf(col('content')))
+
+
+# <======================== TOPIC MODELLING =======================> #
+def predict_topic_udf(content):
+    predicted_topic, _ = loaded_topic_model.transform([content])
+    predicted_topic_label = loaded_topic_model.get_topic(predicted_topic[0])
+    topics = list()
+    for label in predicted_topic_label:
+        print(" -------------- PROCESSED TOPIC -----------:\t{}".format(label))
+        topics.append(label[0])
+    return topics
+
+# Register the UDF
+predict_topic_udf_spark = udf(predict_topic_udf, StringType())
+
+# Apply the UDF to create a new column 'predicted_topic'
+df = df.withColumn("predicted_topic", predict_topic_udf_spark(col('content')))
+
 
 
 # -------------------- Output stream phase ------------------------ #
