@@ -83,7 +83,7 @@ es_mapping = {
                 # "enrichment": {"type": "long"}
                 # Tweak the enrichment at will
                 "topics": {"type": "text"},
-                "highest_topic": {"type", "text"}
+                "highest_topic": {"type": "text"}
             }
     }
 }
