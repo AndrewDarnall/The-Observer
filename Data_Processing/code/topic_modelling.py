@@ -172,12 +172,24 @@ def predict_topic_udf(content):
     except Exception as e:
         print("Type exception raised:\t{}".format(e))
         return "Exception_Raised"
+    
+def predict_single_topic_udf(content):
+    try:
+        predicted_topic, _ = loaded_topic_model.transform([content])
+        predicted_topic_label = loaded_topic_model.get_topic(predicted_topic[0])
+        return predicted_topic_label
+    except Exception as e:
+        print("Type exception raised:\t{}".format(e))
+        return "Exception_Raised"
 
 # Register the UDF
 predict_topic_udf_spark = udf(predict_topic_udf, StringType())
 
+# Single topic label prediction
+single_predict_udf = udf(predict_single_topic_udf, StringType())
+
 # Apply the UDF to create a new column 'predicted_topic' & highest(probablity) topic
-df = df.withColumn("predicted_topic", predict_topic_udf_spark(col('content'))).withColumn("highest_topic", predict_topic_udf_spark(col('content'))[0])
+df = df.withColumn("predicted_topic", predict_topic_udf_spark(col('content'))).withColumn("highest_topic", single_predict_udf(col('content')))
 
 
 
