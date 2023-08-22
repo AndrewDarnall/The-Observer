@@ -160,13 +160,17 @@ df = df.withColumn("content", remove_html_udf(col('content')))
 
 # <======================== TOPIC MODELLING =======================> #
 def predict_topic_udf(content):
-    predicted_topic, _ = loaded_topic_model.transform([content])
-    predicted_topic_label = loaded_topic_model.get_topic(predicted_topic[0])
-    topics = list()
-    for label in predicted_topic_label:
-        print(" -------------- PROCESSED TOPIC -----------:\t{}".format(label))
-        topics.append(label[0])
-    return topics
+    try:
+        predicted_topic, _ = loaded_topic_model.transform([content])
+        predicted_topic_label = loaded_topic_model.get_topic(predicted_topic[0])
+        topics = list()
+        for label in predicted_topic_label:
+            print(" -------------- PROCESSED TOPIC -----------:\t{}".format(label))
+            topics.append(label[0])
+        return topics
+    except Exception as e:
+        print("Type exception raised:\t{}".format(e))
+        return "Exception_Raised"
 
 # Register the UDF
 predict_topic_udf_spark = udf(predict_topic_udf, StringType())
