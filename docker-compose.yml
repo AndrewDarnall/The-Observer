@@ -507,8 +507,8 @@ services:
       - KBN_PATH_CONF=/usr/share/kibana/config
     networks:
       - tap_project_2
-    #volumes:
-    #  - ./Data_Visualization/kibana.yml:/usr/share/kibana/config/kibana.yml
+    volumes:
+      - ./Data_Visualization/kibana.yml:/usr/share/kibana/config/kibana.yml
     depends_on: 
       - elasticsearch
     restart: unless-stopped

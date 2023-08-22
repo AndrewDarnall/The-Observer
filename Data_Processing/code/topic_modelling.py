@@ -82,7 +82,8 @@ es_mapping = {
                 # Dummy enrichment
                 # "enrichment": {"type": "long"}
                 # Tweak the enrichment at will
-                "topics": {"type": "text"}
+                "topics": {"type": "text"},
+                "highest_topic": {"type", "text"}
             }
     }
 }
@@ -175,8 +176,8 @@ def predict_topic_udf(content):
 # Register the UDF
 predict_topic_udf_spark = udf(predict_topic_udf, StringType())
 
-# Apply the UDF to create a new column 'predicted_topic'
-df = df.withColumn("predicted_topic", predict_topic_udf_spark(col('content')))
+# Apply the UDF to create a new column 'predicted_topic' & highest(probablity) topic
+df = df.withColumn("predicted_topic", predict_topic_udf_spark(col('content'))).withColumn("highest_topic", predict_topic_udf_spark(col('content'))[0])
 
 
 
