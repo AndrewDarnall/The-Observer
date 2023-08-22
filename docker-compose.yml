@@ -509,6 +509,7 @@ services:
       - tap_project_2
     volumes:
       - ./Data_Visualization/kibana.yml:/usr/share/kibana/config/kibana.yml
+      - ./Data_Visualization/saved-objects:/usr/share/kibana/saved-objects
     depends_on: 
       - elasticsearch
     restart: unless-stopped
