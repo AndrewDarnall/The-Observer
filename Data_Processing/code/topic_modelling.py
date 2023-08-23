@@ -177,7 +177,7 @@ def predict_single_topic_udf(content):
     try:
         predicted_topic, _ = loaded_topic_model.transform([content])
         predicted_topic_label = loaded_topic_model.get_topic(predicted_topic[0])
-        return predicted_topic_label[0][0]
+        return [predicted_topic_label[0][0]]
     except Exception as e:
         print("Type exception raised:\t{}".format(e))
         return "Exception_Raised"
