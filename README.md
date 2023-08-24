@@ -6,6 +6,14 @@ leveraging the strength of the BERTopic model and the extensible architecture of
 
 -------------------
 
+## Architecture
+
+Miro board [here](https://miro.com/app/board/uXjVMrHQaa4=/?share_link_id=492488903107)
+
+![Architecture Diagram](./img/The_Observer_Architecture.png)
+
+-------------------
+
 ## Setup
 
 * It is preferable to run the project in a Linux environment or use wsl
