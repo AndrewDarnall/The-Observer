@@ -234,31 +234,34 @@ services:
       context: ./Data_Streaming
       dockerfile: Dockerfile
 
-  data_streamer_zookeeper_ui:
-    image: juris/zkui
-    container_name: zkui
-    environment:
-      - ZK_SERVER=10.0.100.22:2181
-    # Debug here
-    ports:
-      - "9096:9090"
-    networks:
-      - tap_project_2
-    depends_on:
-      - data_streamer_zookeeper
-    restart: unless-stopped
-    build:
-      context: ./Data_Streaming
-      dockerfile: Dockerfile
+
+# Turn on only for debugging
+#  data_streamer_zookeeper_ui:
+#    image: juris/zkui
+#    container_name: zkui
+#    environment:
+#      - ZK_SERVER=10.0.100.22:2181
+#    # Debug here
+#    ports:
+#      - "9096:9090"
+#    networks:
+#      - tap_project_2
+#    depends_on:
+#      - data_streamer_zookeeper
+#    restart: unless-stopped
+#    build:
+#      context: ./Data_Streaming
+#      dockerfile: Dockerfile
 
   data_streamer_kafkaServer:
+    hostname: kafkaServer
     image: tap_project:kafka
     container_name: kafkaServer
     environment:
       - KAFKA_ACTION=start-kafka
     networks:
-      tap_project_2:
-        ipv4_address: 10.0.100.23
+      - tap_project_2
+        # ipv4_address: 10.0.100.23
     ports:
       - "9092:9092"
     depends_on:
@@ -269,11 +272,11 @@ services:
       dockerfile: Dockerfile
 
   data_streamer_kafkaServer_ui:
-    image: provectuslabs/kafka-ui:latest
+    image: provectuslabs/kafka-ui:v0.7.0
     container_name: kafkaUi
     environment:
-      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=10.0.100.23:9092
-      - KAFKA_CLUSTERS_0_ZOOKEEPER=10.0.100.22:2181
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafkaServer:9092
     networks:
       - tap_project_2
     # Debugging
