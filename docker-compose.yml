@@ -236,22 +236,22 @@ services:
 
 
 # Turn on only for debugging
-#  data_streamer_zookeeper_ui:
-#    image: juris/zkui
-#    container_name: zkui
-#    environment:
-#      - ZK_SERVER=10.0.100.22:2181
-#    # Debug here
-#    ports:
-#      - "9096:9090"
-#    networks:
-#      - tap_project_2
-#    depends_on:
-#      - data_streamer_zookeeper
-#    restart: unless-stopped
-#    build:
-#      context: ./Data_Streaming
-#      dockerfile: Dockerfile
+  data_streamer_zookeeper_ui:
+    image: juris/zkui
+    container_name: zkui
+    environment:
+      - ZK_SERVER=10.0.100.22:2181
+    # Debug here
+    ports:
+      - "9096:9090"
+    networks:
+      - tap_project_2
+    depends_on:
+      - data_streamer_zookeeper
+    restart: unless-stopped
+    build:
+      context: ./Data_Streaming
+      dockerfile: Dockerfile
 
   data_streamer_kafkaServer:
     hostname: kafkaServer
