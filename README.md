@@ -46,6 +46,8 @@ so longs as you maintain the .jsonl format in the datastorage volume
 
 # End Result
 
-[Dashboard One](./img/Project_Dashboard_1.png)
+![Dashboard One](./img/Project_Dashboard_1.png)
 
-[Dashboard Two](./img/Project_Dashboard_2.png)
+--------------------------
+
+![Dashboard Two](./img/Project_Dashboard_2.png)
