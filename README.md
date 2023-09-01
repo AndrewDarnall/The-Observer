@@ -43,3 +43,9 @@ Miro board [here](https://miro.com/app/board/uXjVMrHQaa4=/?share_link_id=4924889
 
 Do with the project as you please, I designed it to be expandable and hihgly maintainable, therefore you can add other servers, other social medias
 so longs as you maintain the .jsonl format in the datastorage volume
+
+# End Result
+
+[Dashboard One](./img/Project_Dashboard_1.png)
+
+[Dashboard Two](./img/Project_Dashboard_2.png)
