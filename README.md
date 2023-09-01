@@ -35,7 +35,7 @@ Miro board [here](https://miro.com/app/board/uXjVMrHQaa4=/?share_link_id=4924889
 ## Configure Dashboard
 
 5) in your local browser, browse http://localhost:5601/
-6) Go to > Saved Objects > Import > TAP_Project/Data_Visualization/saved-objects/export_pre_final.ndjson > click import
+6) Go to > Saved Objects > Import > TAP_Project/Data_Visualization/saved-objects/dashboard_export.ndjson > click import
 7) Reload the page as is
 8) Go to dashboard and select the 'the_observer' dashboard
 
