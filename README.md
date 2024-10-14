@@ -61,7 +61,7 @@ Open your web browser of choice and enter:
 ```bash
 localhost:5601/
 ```
-1) Go to > Saved Objects > Import > TAP_Project/Data_Visualization/saved-objects/dashboard_export.ndjson > click import
+1) Go to > Saved Objects > Import > The-Observer/Data_Visualization/saved-objects/dashboard_export.ndjson > click import
 2) Reload the page as is
 3) Go to dashboard and select the 'the_observer' dashboard
 
