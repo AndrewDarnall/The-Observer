@@ -1,8 +1,9 @@
 ![Project Logo](./img/The_Observer_candidate_2.png)
 # The Observer
 
-The goal of the project is to provide a 'no strings attatched' overview of public mastodon servers
-leveraging the strength of the BERTopic model and the extensible architecture ofthe project
+Many of us have experienced long, uninterrupted sessions of scrolling through social media feeds. But has anyone ever paused to ask: what exactly are all these users discussing?
+
+This project seeks to answer that question. Its primary objective is to provide an unbiased, comprehensive analysis of public Mastodon servers by leveraging the capabilities of the `BERTopic` model. The project is designed with an extensible architecture, allowing for flexible and scalable insights into public discourse across these platforms.
 
 -------------------
 
@@ -14,35 +15,57 @@ Miro board [here](https://miro.com/app/board/uXjVMrHQaa4=/?share_link_id=4924889
 
 -------------------
 
+## Requirements
+
+| Component     | Version   |
+|---------------|-----------|
+| Docker        | `20.10.5` |
+| Docker-Compose| `1.25.0`  |
+| Mastodon API  | `2.0`     |
+
+--------------------
+
 ## Setup
 
-* It is preferable to run the project in a Linux environment or use wsl
-* It is advised to run this project wither on the cloud, with a powerful VM instance or with at least 16GB or RAM and Linux
+Obtain the project
 
-1) clone the directory with the git cli tool
-2) chdir into the cloned directory
-3) bash project_setup.sh
-4) docker-compose build (This might take a while)
+```bash
+git clone https://github.com/AndrewDarnall/The-Observer.git
+cd The-Observer
+```
+
+Run a setup shell script (builds some container images such as Apache Kafka)
+
+```bash
+bash ./Scripts/project_setup.sh
+```
+
+Build the project (this might take a while)
+
+```bash
+docker-compose build
+```
+
+Run the project
+
+```bash
+docker-compose up
+```
 
 -------------------
 
-## Run
+## Dashboard Configuration
 
-4) docker-compose up -d (If you have limited hardware, it might take a while)
+Open your web browser of choice and enter:
 
--------------------
+```bash
+localhost:5601/
+```
+1) Go to > Saved Objects > Import > TAP_Project/Data_Visualization/saved-objects/dashboard_export.ndjson > click import
+2) Reload the page as is
+3) Go to dashboard and select the 'the_observer' dashboard
 
-## Configure Dashboard
-
-5) in your local browser, browse http://localhost:5601/
-6) Go to > Saved Objects > Import > TAP_Project/Data_Visualization/saved-objects/dashboard_export.ndjson > click import
-7) Reload the page as is
-8) Go to dashboard and select the 'the_observer' dashboard
-
-# Notes
-
-Do with the project as you please, I designed it to be expandable and hihgly maintainable, therefore you can add other servers, other social medias
-so longs as you maintain the .jsonl format in the datastorage volume
+--------------------------
 
 # End Result
 

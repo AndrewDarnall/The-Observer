@@ -1,4 +1,3 @@
-test_3.js
 build_all.sh
 get_kafka.sh
 setup.sh
@@ -7,3 +6,4 @@ TODO_LIST.txt
 /Data_Processing/setup/*.tgz
 /Data_Streaming/setup/*.tgz
 /Data_Processing/models/*.pkl
+.ipynb_checkpoints
